@@ -2,7 +2,7 @@
 const express = require("express");
 
 // import postsRouter
-const postsRouter = require("./postsRouter.js");
+const postsRouter = require("../routers/postsRouter.js");
 
 const server = express();
 

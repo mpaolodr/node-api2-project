@@ -38,5 +38,34 @@ router.get("/:id", (req, res) => {
     });
 });
 
+// POST /api/posts
+router.post("/", (req, res) => {
+  const postData = req.body;
+
+  if (postData.title && postData.contents) {
+    Posts.insert(postData)
+      .then(added => {
+        Posts.findById(added.id)
+          .then(addedPost => {
+            res.status(201).json(addedPost);
+          })
+          .catch(err => {
+            res.status(500).json({ error: "Cannot retrieve post" });
+          });
+      })
+      .catch(err => {
+        res
+          .status(500)
+          .json({
+            error: "There was an error while saving the post to the database"
+          });
+      });
+  } else {
+    res.status(400).json({
+      errorMessage: "Please provide title and contents for the post."
+    });
+  }
+});
+
 // export
 module.exports = router;
