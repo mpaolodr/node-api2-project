@@ -54,17 +54,42 @@ router.post("/", (req, res) => {
           });
       })
       .catch(err => {
-        res
-          .status(500)
-          .json({
-            error: "There was an error while saving the post to the database"
-          });
+        res.status(500).json({
+          error: "There was an error while saving the post to the database"
+        });
       });
   } else {
     res.status(400).json({
       errorMessage: "Please provide title and contents for the post."
     });
   }
+});
+
+// GET /api/posts/:id/comments
+router.get("/:id/comments", (req, res) => {
+  const { id } = req.params;
+
+  Posts.findById(id)
+    .then(result => {
+      Posts.findPostComments(result[0].id)
+        .then(comments => {
+          if (comments.length !== 0) {
+            res.status(200).json(comments);
+          } else {
+            res.status(204).json({ message: "No Comments Available" });
+          }
+        })
+        .catch(err => {
+          res.status(500).json({
+            error: "The comments information could not be retrieved."
+          });
+        });
+    })
+    .catch(err => {
+      res
+        .status(404)
+        .json({ message: "The post with the specified id does not exist" });
+    });
 });
 
 // export
