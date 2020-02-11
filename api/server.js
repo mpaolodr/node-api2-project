@@ -10,5 +10,9 @@ const server = express();
 server.use(express.json());
 server.use("/api/posts", postsRouter);
 
+server.get("/", (req, res) => {
+  res.sendStatus(200);
+});
+
 // export server
 module.exports = server;
