@@ -131,5 +131,26 @@ router.post("/:id/comments", (req, res) => {
     });
 });
 
+// DELETE /api/posts/:id
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+
+  Posts.findById(id)
+    .then(result => {
+      Posts.remove(id)
+        .then(deleted => {
+          res.status(200).json(result);
+        })
+        .catch(err => {
+          res.status(500).json({ error: "The post could not be removed" });
+        });
+    })
+    .catch(err => {
+      res
+        .status(404)
+        .json({ message: "The post with the specified ID does not exist." });
+    });
+});
+
 // export
 module.exports = router;
