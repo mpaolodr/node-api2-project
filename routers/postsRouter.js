@@ -98,7 +98,7 @@ router.post("/:id/comments", (req, res) => {
   const commentData = { ...req.body, post_id: id };
 
   Posts.findById(id)
-    .then(foundPost => {
+    .then(post => {
       if (commentData.text) {
         Posts.insertComment(commentData)
           .then(result => {
@@ -136,14 +136,50 @@ router.delete("/:id", (req, res) => {
   const { id } = req.params;
 
   Posts.findById(id)
-    .then(result => {
+    .then(post => {
       Posts.remove(id)
         .then(deleted => {
-          res.status(200).json(result);
+          res.status(200).json(post);
         })
         .catch(err => {
           res.status(500).json({ error: "The post could not be removed" });
         });
+    })
+    .catch(err => {
+      res
+        .status(404)
+        .json({ message: "The post with the specified ID does not exist." });
+    });
+});
+
+//  PUT /api/posts/:id
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
+
+  Posts.findById(id)
+    .then(post => {
+      if (updatedData.title && updatedData.contents) {
+        Posts.update(post[0].id, updatedData)
+          .then(updated => {
+            Posts.findById(post[0].id)
+              .then(updatedPost => {
+                res.status(200).json(updatedPost);
+              })
+              .catch(err => {
+                res.status(500).end();
+              });
+          })
+          .catch(err => {
+            res
+              .status(500)
+              .json({ error: "The post information could not be modified." });
+          });
+      } else {
+        res.status(400).json({
+          errorMessage: "Please provide title and contents for the post."
+        });
+      }
     })
     .catch(err => {
       res
