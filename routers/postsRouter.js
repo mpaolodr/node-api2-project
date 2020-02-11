@@ -92,5 +92,44 @@ router.get("/:id/comments", (req, res) => {
     });
 });
 
+// POST /api/posts/:id/comments
+router.post("/:id/comments", (req, res) => {
+  const { id } = req.params;
+  const commentData = { ...req.body, post_id: id };
+
+  Posts.findById(id)
+    .then(foundPost => {
+      if (commentData.text) {
+        Posts.insertComment(commentData)
+          .then(result => {
+            Posts.findCommentById(result.id)
+              .then(newComment => {
+                res.status(201).json(newComment);
+              })
+              .catch(err => {
+                res
+                  .status(404)
+                  .json({ message: "No Comment found by that id" });
+              });
+          })
+          .catch(err => {
+            res.status(500).json({
+              error:
+                "There was an error while saving the comment to the database"
+            });
+          });
+      } else {
+        res
+          .status(400)
+          .json({ errorMessage: "Please provide text for the comment." });
+      }
+    })
+    .catch(err => {
+      res
+        .status(404)
+        .json({ message: "The post with the specified ID does not exist." });
+    });
+});
+
 // export
 module.exports = router;
